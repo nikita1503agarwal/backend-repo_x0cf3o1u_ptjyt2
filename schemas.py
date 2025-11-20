@@ -11,10 +11,10 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, HttpUrl
+from typing import Optional, List
 
-# Example schemas (replace with your own):
+# Example schemas (retain as references):
 
 class User(BaseModel):
     """
@@ -38,11 +38,18 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Manhwa forum specific schemas
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class Post(BaseModel):
+    """
+    Manhwa recommendations and reviews posted by users.
+    Collection name: "post"
+    """
+    title: str = Field(..., min_length=2, max_length=200, description="Manhwa title or post headline")
+    summary: Optional[str] = Field(None, max_length=2000, description="Short description or why you recommend it")
+    rating: Optional[float] = Field(None, ge=0, le=10, description="Rating out of 10")
+    genres: Optional[List[str]] = Field(default_factory=list, description="List of genres or tags")
+    links: Optional[List[HttpUrl]] = Field(default_factory=list, description="Related links (official, fandom, sources)")
+    image_urls: Optional[List[HttpUrl]] = Field(default_factory=list, description="Image URLs to display for the post")
+    image_data: Optional[List[str]] = Field(default_factory=list, description="Optional base64-encoded inline images")
+    author: Optional[str] = Field(None, max_length=100, description="Display name of the author")
